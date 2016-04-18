@@ -51,7 +51,7 @@ And setup the JS framework like this:
     <html>
         <head>
             <title>Django-channels-rest test</title>
-            <script src="{% static 'channels_rest.js' %}"></script>
+            <script src="{% static 'channels_rest/channels_rest.js' %}"></script>
         </head>
         <body>
             <h1>My awesome webpage.</h1>
