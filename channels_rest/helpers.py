@@ -6,6 +6,8 @@ from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
 
+from urllib.parse import urlsplit, parse_qsl
+
 import logging
 import json
 
@@ -85,23 +87,30 @@ def process_rest_request(message, urls=settings.ROOT_URLCONF):
         logger.exception("Something went wrong when constructing the urlresolver")
         return return_500()
 
+    split_url = urlsplit(data['url'])
     try:
-        callback, callback_args, callback_kwargs = resolver.resolve(data['url'])
+        callback, callback_args, callback_kwargs = resolver.resolve(split_url.path)
     except:
         logger.exception("No matches found for url %s", data['url'])
         return return_404()
 
     request = ChannelRestRequest(message, method=data['method'].upper())
-    request.path = data['url']
+
+    request.path = split_url.path
 
     if 'body' in data:
         request._body = data['body']
         request._read_started = True
 
+    request.META['QUERY_PARAMS'] = split_url.query
+
     if 'meta' in data:
         request.META = data['meta']
 
     request.fix_meta()
+
+    if split_url.query:
+        request.GET.update(dict(parse_qsl(split_url.query)))
 
     response = None
 
