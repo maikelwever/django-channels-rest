@@ -98,15 +98,15 @@ def process_rest_request(message, urls=settings.ROOT_URLCONF):
 
     request.path = split_url.path
 
-    if 'body' in data:
-        request._body = data['body']
-        request._read_started = True
-
-    request.META['QUERY_PARAMS'] = split_url.query
-
     if 'meta' in data:
         request.META = data['meta']
 
+    if 'body' in data:
+        body_data = data['body'].encode('utf-8')
+        request._stream = six.BytesIO(body_data)
+        request.META['CONTENT_LENGTH'] = len(body_data)
+
+    request.META['QUERY_PARAMS'] = split_url.query
     request.fix_meta()
 
     if split_url.query:

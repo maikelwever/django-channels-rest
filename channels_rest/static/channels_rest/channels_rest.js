@@ -23,6 +23,10 @@ var CCR = {
             "url": url,
             "method": method
         }
+        if (payload !== undefined && payload !== null) {
+            data['body'] = JSON.stringify(payload);
+            data['meta'] = {'CONTENT_TYPE': 'application/json'};
+        }
         this.queue[this.id_counter] = callback;
         this.send(JSON.stringify(data));
     },
